@@ -10,3 +10,8 @@
 pip install fastapi numpy pandas
 ```
 
+## Run locally
+```bash
+fastapi dev .\main.py
+```
+
