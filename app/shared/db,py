@@ -1,0 +1,24 @@
+from typing import Optional, List, Dict, Any
+from sqlmodel import Field, Session, SQLModel, create_engine
+from ai import Message
+
+class AI_Log(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    model: str
+    messages: List[Message]
+    tokens_in: int
+    tokens_out: int
+    
+
+def create_db_and_tables():
+    engine = create_engine("sqlite:///ai.db")
+    SQLModel.metadata.create_all(engine)
+    return engine
+
+dbSession = None
+def get_session():
+    global dbSession
+    if dbSession is None:
+        engine = create_db_and_tables()
+        dbSession = Session(engine)
+    return dbSession

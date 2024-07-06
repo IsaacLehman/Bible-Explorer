@@ -7,11 +7,14 @@
 
 ## Install Dependencies
 ```bash
-pip install fastapi numpy pandas
+pip install fastapi numpy pandas openai sqlmodel
 ```
 
 ## Run locally
 ```bash
-fastapi dev .\main.py
+fastapi dev .\app\main.py
 ```
+
+Interesting articles:
+- https://fastapi.tiangolo.com/tutorial/bigger-applications/
 
