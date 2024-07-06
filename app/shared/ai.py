@@ -1,8 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
+import json
 
 from openai import OpenAI
 from shared.secrets import get_secret
+
+from db.models import AI_Log
+from db.controller import get_db
 
 """
 ======================================================= MODELS =======================================================
@@ -39,12 +43,13 @@ class Message(BaseModel):
 """
 # Global OpenAI client
 client = OpenAI(api_key=get_secret('OPENAI_API_KEY'))
-def ai_chat(messages: List[Message], model: str = "gpt-3.5-turbo", config: Dict[str, Any] = {
+def ai_chat(source: str, messages: List[Message], model: str = "gpt-3.5-turbo", config: Dict[str, Any] = {
     "stream": False,
     "temperature": 0.65,
 }) -> Dict[str, Any]:
     """
     This function sends a message to the OpenAI API and returns the response.
+    - source: The source of the chat. | str
     - messages: The chat history to send to the API. | [{role: str, content: str}] where role is either "system", "user", or "assistant"
     - model: The model to use for the chat. | str
     - config: The configuration for the chat. | dict
@@ -63,10 +68,29 @@ def ai_chat(messages: List[Message], model: str = "gpt-3.5-turbo", config: Dict[
             **config
         )
         output = response.choices[0].message.content
-        
+        full_chat_history = messages + [Message(role="assistant", content=output)]
+        print(output)
+
+        # Save the chat log to the database
+        with get_db() as db:
+            print('here')
+            log = AI_Log(
+                source=source,
+                messages=json.dumps([message.dict() for message in messages]),
+                model=model,
+                config=str(config),
+                response=output,
+                prompt_tokens=response.usage.prompt_tokens,
+                completion_tokens=response.usage.completion_tokens
+            )
+            print('there')
+            print(log)
+            db.add(log)
+            db.commit()
+
         return {
             "output": output,
-            "chat_history": messages + [Message(role="assistant", content=output)],
+            "chat_history": full_chat_history,
             "usage": response.usage
         }
     except Exception as e:

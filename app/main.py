@@ -3,7 +3,24 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from shared.ai import ai_chat, Message
 
+"""
+======================================================= FASTAPI =======================================================
+"""
 app = FastAPI()
+
+"""
+====================================================== DATABASE INTI =======================================================
+"""
+import db.models as models
+from db.controller import create_db_and_tables, engine
+create_db_and_tables()
+
+"""
+====================================================== ROUTES =======================================================
+"""
+
+
+
 
 class Item(BaseModel):
     name: str
@@ -26,6 +43,6 @@ def update_item(item_id: int, item: Item):
 @app.post("/ai/chat")
 def chat_with_ai(messages: List[Message], model: str = "gpt-3.5-turbo"):
     print('Received chat history:', messages)    
-    response = ai_chat(messages, model=model)
+    response = ai_chat('api docs', messages, model=model)
     
     return response
