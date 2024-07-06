@@ -13,6 +13,7 @@ class AI_Log(SQLModel, table=True):
     model: str
     config: str
     response: str
+    runtime_seconds: float
     prompt_tokens: int
     completion_tokens: int
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

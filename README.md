@@ -10,6 +10,13 @@
 pip install fastapi numpy pandas openai sqlmodel
 ```
 
+## Add your `app/shared/env.json` file at 
+```json
+{
+    "OPENAI_API_KEY": "your_openai_api_key"
+}
+```
+
 ## Run locally
 ```bash
 fastapi dev .\app\main.py
