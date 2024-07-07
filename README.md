@@ -22,6 +22,8 @@ pip install fastapi numpy pandas openai sqlmodel
 fastapi dev .\app\main.py
 ```
 
+- [Local Docs: http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
 Interesting articles:
 - https://fastapi.tiangolo.com/tutorial/bigger-applications/
 - [Bible versions in the public domain](https://support.biblegateway.com/hc/en-us/articles/360001403507-What-Bibles-on-Bible-Gateway-are-in-the-public-domain)
