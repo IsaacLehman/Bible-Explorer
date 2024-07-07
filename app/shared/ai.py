@@ -16,7 +16,7 @@ class Message(BaseModel):
     content: str = Field(..., description="The content of the message.")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "examples": [
                 {
                     "role": "system",
@@ -39,14 +39,14 @@ class Message(BaseModel):
 
 
 class AI_Response(BaseModel):
-    output: str = Field(..., description="The output of the AI response.")
+    output: Union[str, Dict[str, Any], List[Any]] = Field(..., description="The output of the AI response. Can be a string or a dictionary if the output is JSON.")
     chat_history: List[Message] = Field(..., description="The full chat history.")
     runtime_seconds: float = Field(..., description="The runtime of the API call in seconds.")
     prompt_tokens: int = Field(..., description="The number of tokens in the prompt.")
     completion_tokens: int = Field(..., description="The number of tokens in the completion.")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "examples": [
                 {
                     "output": "I am doing well, thank you for asking.",
