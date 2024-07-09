@@ -163,6 +163,13 @@ def search_bible(bible, query, limit=10, include_context=False):
     # Get the top N verses
     top_n_verses = verses[:limit]
 
+    # Add relative matching score (i.e. first is 100% match, last is 0% match)
+    max_similarity = top_n_verses[0]["similarity"]
+    min_similarity = top_n_verses[-1]["similarity"]
+    for verse in top_n_verses:
+        verse["relative_similarity"] = (verse["similarity"] - min_similarity) / (max_similarity - min_similarity) if max_similarity - min_similarity != 0 else 0
+
+
     if include_context:
         # Include the context of the verses
         for verse in top_n_verses:
@@ -203,7 +210,7 @@ if __name__ == "__main__":
         print('Top 10 verses:')
         print('=' * 100)
         for i, verse in enumerate(verses):
-            print(f"{i + 1}. {verse['book_name']} {verse['chapter']}:{verse['verse']} - Similarity: {verse['similarity']:.2f}")
+            print(f"{i + 1}. {verse['book_name']} {verse['chapter']}:{verse['verse']} - Similarity: {verse['similarity']:.2f} ({100*verse['relative_similarity']:.2f}% Relative Match)")
             print(verse['text'])
             if include_context:
                 print('-' * 3)
