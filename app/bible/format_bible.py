@@ -128,38 +128,88 @@ def format_bible_versions(batch_size=250):
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)) if np.linalg.norm(a) * np.linalg.norm(b) != 0 else 0
 
-def search_bible(query, limit=10):
-    query_embedding = embed_text([query], "RETRIEVAL_QUERY")[0]
+def get_bible():
+    # Get the list of Bible versions
     versions_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "formatted_versions")
     versions = os.listdir(versions_abs_path)
+
     # ask the user which version they want to search
     print("Available Bible Versions:")
     for i, version in enumerate(versions):
         print(f"{i}: {version}")
     version_index = int(input("Enter the index of the Bible version you want to search: "))
+
+    # Load the Bible version
     with open(f"{versions_abs_path}/{versions[version_index]}", "r") as f:
         print(f"- Loading Bible version: {versions[version_index]}")
         bible = json.load(f)
         print(f"- Bible version: {bible['metadata']['name']} {bible['metadata']['year']} Loaded!")
-    verses = bible["verses"]
+
+    # Return the Bible
+    return bible
+
+def search_bible(bible, query, limit=10, include_context=False):
+    # Embed the query
+    query_embedding = embed_text([query], "RETRIEVAL_QUERY")[0]
+
     # Calculate the similarity of the query to each verse
+    verses = bible["verses"]
     for verse in verses:
         verse["similarity"] = cosine_similarity(query_embedding, verse["embedding"])
+
     # Sort the verses by similarity
     verses = sorted(verses, key=lambda x: x["similarity"], reverse=True)
-    # Return the top 10 verses
-    return verses[:limit]
+
+    # Get the top N verses
+    top_n_verses = verses[:limit]
+
+    if include_context:
+        # Include the context of the verses
+        for verse in top_n_verses:
+            verse["context"] = ""
+            book_name = verse["book_name"]
+            chapter = verse["chapter"]
+            verse_number = verse["verse"]
+            # Get the verses around the current verse. Make sure they are in the same book - add last 2 and next 2 verses
+            for i in range(-2, 3):
+                # Get the verse number
+                current_verse_number = verse_number + i
+                # Check if the verse number is valid
+                if current_verse_number > 0:
+                    # Get the verse
+                    current_verse = next((v for v in verses if v["book_name"] == book_name and v["chapter"] == chapter and v["verse"] == current_verse_number), None)
+                    # Add the verse text to the context
+                    if current_verse:
+                        verse["context"] += f"\t{current_verse['book_name']} {current_verse['chapter']}:{current_verse['verse']} - {current_verse['text']}\n"
+    
+    # Return the top N verses
+    return top_n_verses
 
 if __name__ == "__main__":
     #format_bible_versions()
+
+    # Load the Bible
     print('Welcome to the Bible Explorer')
     print('=' * 100)
-    print('Search the Bible')
-    search = input('Enter a search query: ')
-    verses = search_bible(search)
-    print('Top 10 verses:')
+    bible = get_bible()
     print('=' * 100)
-    for i, verse in enumerate(verses):
-        print(f"{i + 1}. {verse['book_name']} {verse['chapter']}:{verse['verse']} - Similarity: {verse['similarity']:.2f}")
-        print(verse['text'])
-        print('-' * 30)
+    print('Search the Bible')
+    include_context = input('Do you want to include context for the verses? (y/n): ').lower() == 'y'
+    search = None
+    while search != 'q' and search != 'quit':
+        print('=' * 100)
+        search = input('Enter a search query (type "q" or "quit" to exit): ')
+        verses = search_bible(bible, search, 10, include_context=include_context)
+        print('Top 10 verses:')
+        print('=' * 100)
+        for i, verse in enumerate(verses):
+            print(f"{i + 1}. {verse['book_name']} {verse['chapter']}:{verse['verse']} - Similarity: {verse['similarity']:.2f}")
+            print(verse['text'])
+            if include_context:
+                print('-' * 3)
+                print('Context:') 
+                print(verse['context'])
+            if i < len(verses) - 1:
+                print('-' * 30)
+
+    print('Goodbye!')
