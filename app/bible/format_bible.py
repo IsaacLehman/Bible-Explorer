@@ -126,7 +126,10 @@ def format_bible_versions(batch_size=250):
         print(f"Saved Bible version: {version}")
 
 def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)) if np.linalg.norm(a) * np.linalg.norm(b) != 0 else 0
+    norm = np.linalg.norm(a) * np.linalg.norm(b)
+    distance = (np.dot(a, b) / norm) if norm != 0 else 0
+    normalized_distance = (distance + 1) / 2 # Normalize to [0, 1]
+    return normalized_distance
 
 def get_bible():
     # Get the list of Bible versions
@@ -143,22 +146,39 @@ def get_bible():
     with open(f"{versions_abs_path}/{versions[version_index]}", "r") as f:
         print(f"- Loading Bible version: {versions[version_index]}")
         bible = json.load(f)
+
+        # Convert the embeddings to numpy arrays
+        for verse in bible["verses"]:
+            verse["embedding"] = np.array(verse["embedding"])
+
         print(f"- Bible version: {bible['metadata']['name']} {bible['metadata']['year']} Loaded!")
 
     # Return the Bible
     return bible
 
-def search_bible(bible, query, limit=10, include_context=False):
+def search_bible(bible, query, limit=10, include_context=False, debug=False):
     # Embed the query
+    start = time.time()
     query_embedding = embed_text([query], "RETRIEVAL_QUERY")[0]
+    if debug:
+        end = time.time()
+        print(f"Embedding Time: {end - start:.2f}s")
 
     # Calculate the similarity of the query to each verse
     verses = bible["verses"]
+    start = time.time()
     for verse in verses:
         verse["similarity"] = cosine_similarity(query_embedding, verse["embedding"])
+    if debug:
+        end = time.time()
+        print(f"Similarity Time: {end - start:.2f}s")
 
     # Sort the verses by similarity
+    start = time.time()
     verses = sorted(verses, key=lambda x: x["similarity"], reverse=True)
+    if debug:
+        end = time.time()
+        print(f"Sorting Time: {end - start:.2f}s")
 
     # Get the top N verses
     top_n_verses = verses[:limit]
@@ -202,11 +222,15 @@ if __name__ == "__main__":
     print('=' * 100)
     print('Search the Bible')
     include_context = input('Do you want to include context for the verses? (y/n): ').lower() == 'y'
+    debug_mode = input('Do you want to enable debug mode? (y/n): ').lower() == 'y'
     search = None
     while search != 'q' and search != 'quit':
         print('=' * 100)
         search = input('Enter a search query (type "q" or "quit" to exit): ')
-        verses = search_bible(bible, search, 10, include_context=include_context)
+        if search == 'q' or search == 'quit':
+            break
+        print('---')
+        verses = search_bible(bible, search, 10, include_context=include_context, debug=debug_mode)
         print('Top 10 verses:')
         print('=' * 100)
         for i, verse in enumerate(verses):
