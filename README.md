@@ -7,7 +7,7 @@
 
 ## Install Dependencies
 ```bash
-pip install fastapi numpy pandas openai sqlmodel vertexai
+pip install fastapi numpy pandas openai sqlmodel vertexai numba scipy
 ```
 
 ## Add your `app/shared/env.json` file at 

@@ -26,6 +26,7 @@ Output the updated JSON fiels in a new folder called ./formatted_versions
 """
 import os, json, requests, time
 import numpy as np
+from numba import njit
 from typing import List, Optional
 import google.auth
 import google.auth.transport.requests
@@ -124,12 +125,21 @@ def format_bible_versions(batch_size=250):
             json.dump(bible, f, indent=4)
 
         print(f"Saved Bible version: {version}")
+        
 
-def cosine_similarity(a, b):
-    norm = np.linalg.norm(a) * np.linalg.norm(b)
-    distance = (np.dot(a, b) / norm) if norm != 0 else 0
-    normalized_distance = (distance + 1) / 2 # Normalize to [0, 1]
-    return normalized_distance
+@njit(parallel=True)
+def cosine_distance_numba(search_vector, verse_vectors):
+    similarities = np.zeros(len(verse_vectors))
+    for i in range(len(verse_vectors)):
+        # Cosine Distance = sqrt(sum((a - b)^2)
+        cur_vector = verse_vectors[i]
+        distance = 0
+        for j in range(len(search_vector)):
+            distance += (search_vector[j] - cur_vector[j]) ** 2
+        similarities[i] = np.sqrt(distance)
+    return similarities
+
+
 
 def get_bible():
     # Get the list of Bible versions
@@ -167,15 +177,22 @@ def search_bible(bible, query, limit=10, include_context=False, debug=False):
     # Calculate the similarity of the query to each verse
     verses = bible["verses"]
     start = time.time()
-    for verse in verses:
-        verse["similarity"] = cosine_similarity(query_embedding, verse["embedding"])
+    verse_embeddings = np.array([verse["embedding"] for verse in verses]) # array of verse embeddings [[...], [...], ...]
+    similarities = cosine_distance_numba(np.array(query_embedding), verse_embeddings)
     if debug:
         end = time.time()
         print(f"Similarity Time: {end - start:.2f}s")
 
+    start = time.time()
+    for i, verse in enumerate(verses):
+        verse["similarity"] = similarities[i]
+    if debug:
+        end = time.time()
+        print(f"Adding Similarity Time: {end - start:.2f}s")
+
     # Sort the verses by similarity
     start = time.time()
-    verses = sorted(verses, key=lambda x: x["similarity"], reverse=True)
+    verses = sorted(verses, key=lambda x: x["similarity"])
     if debug:
         end = time.time()
         print(f"Sorting Time: {end - start:.2f}s")
