@@ -1,11 +1,10 @@
 # A quick and dirty Ai generation commit message tool.
 # cd dev & pushAll.cmd
+# OPENAI_API is a system environment variable.
 
 import os
 import subprocess
 import sys
-import requests
-import json
 from openai import OpenAI
 client = OpenAI(api_key=os.getenv('OPENAI_API'))
 SYSTEM = "You are a developer, you create git commit messages."
