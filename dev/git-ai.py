@@ -28,19 +28,26 @@ The Following code:
 
 
 def getResp(text):
-    completion = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "system", "content": SYSTEM},
-        {"role": "user", "content": EXAMPLE}
-    ]
-    )
-    print(completion.choices[0].message)
-    if "message" in completion['choices'][0] and completion['choices'][0]['message']:
-        return completion['choices'][0]['message']['content']
-    else:
-        print("[ERROR] generating response for:", text)
-        return ""
+    print(text)
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": SYSTEM},
+                {"role": "user", "content": text}
+            ]
+        )
+        print(completion.choices[0].message.content)
+        return completion.choices[0].message.content
+    except:
+        print("Failed to create commit message.")
+        quit()
+
+    # if "message" in completion['choices'][0] and completion['choices'][0]['message']:
+    #     return completion['choices'][0]['message']['content'] #completion['choices'][0]['message']['content']
+    # else:
+    #     print("[ERROR] generating response for:", text)
+    #     return ""
 
 def main(local_path):
     if not os.path.exists(local_path):
@@ -64,7 +71,7 @@ def main(local_path):
 
     # Generate a single description from all changes
     print(f"[INFO] Creating AI Git descriptions for {len(changed_files)} changed files...")
-    description = "\n".join(getResp(AI_INSERT + change) for change in changes)
+    description = "\n".join(getResp(EXAMPLE + change) for change in changes)
     # Add all new files
     subprocess.run(['git', 'add', '.'])
 
