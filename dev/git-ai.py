@@ -54,7 +54,7 @@ class MyClass:
         pass
 
 Expected Output (Example):
-Implemented logging in file1.py and added my_method to MyClass. 😸
+😸 Implemented logging in file1.py and added my_method to MyClass.
 """
 
 # Function to generate responses from the OpenAI model
