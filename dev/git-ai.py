@@ -1,3 +1,5 @@
+# A quick and dirty Ai generation commit message tool.
+# cd dev & pushAll.cmd
 
 import os
 import subprocess
@@ -42,12 +44,6 @@ def getResp(text):
     except:
         print("Failed to create commit message.")
         quit()
-
-    # if "message" in completion['choices'][0] and completion['choices'][0]['message']:
-    #     return completion['choices'][0]['message']['content'] #completion['choices'][0]['message']['content']
-    # else:
-    #     print("[ERROR] generating response for:", text)
-    #     return ""
 
 def main(local_path):
     if not os.path.exists(local_path):
