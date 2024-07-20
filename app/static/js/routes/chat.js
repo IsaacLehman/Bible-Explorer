@@ -1,7 +1,10 @@
 /**
  * @description Chat route controller
  */
-import { reactive, html } from '../lib.js';
+import { 
+    reactive, html,
+    toHtml 
+} from '../lib.js';
 
 // App chatState
 const chatState = reactive({
@@ -9,9 +12,31 @@ const chatState = reactive({
     userInput: '',
     chatHistory: [{
         role: 'system',
-        content: 'You are a helpful AI assistant. Respond concisely to user input.'
+        content: 'You are a helpful AI assistant. Respond concisely to user input in Markdown format.'
     }],
 });
+
+// ============================================================================================
+// Chat Style Sheet
+// ============================================================================================
+const chatStyle = `
+    #chat-history table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #chat-history td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+    #chat-history tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    #chat-history tr:hover {
+        background-color: #f1f1f1;
+    }
+`;
+// Add the chat style to the head of the document
+document.head.insertAdjacentHTML('beforeend', `<style>${chatStyle}</style>`);
 
 // ============================================================================================
 // Chat function
@@ -49,7 +74,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-
 // ============================================================================================
 // Main Chat Template
 // ============================================================================================
@@ -61,7 +85,8 @@ const template = html`
             <!-- Chat history entries -->
             ${() => chatState.chatHistory?.filter(entry => entry.role != 'system')?.map(entry => html`
                 <div class="${entry.role === 'user' ? 'text-end' : 'text-start'}">
-                    <strong>${entry.role === 'user' ? 'You' : 'AI'}:</strong> ${entry.content}
+                    <strong>${entry.role === 'user' ? 'You' : 'AI'}:</strong> 
+                    ${toHtml(entry.content)}
                 </div>
             `)}
         </div>
