@@ -29,4 +29,5 @@ Interesting articles:
 - [Bible versions in the public domain](https://support.biblegateway.com/hc/en-us/articles/360001403507-What-Bibles-on-Bible-Gateway-are-in-the-public-domain)
 - [Download Bible Versions](https://www.biblesupersearch.com/bible-downloads/)
 
-
+## Other Tips:
+- Install the `lit-html` extension in VS Code to get syntax highlighting for `html` template literals.

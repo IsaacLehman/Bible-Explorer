@@ -14,17 +14,15 @@ router = APIRouter(
 )
 
 
-# Serve index.html for the root URL
-@router.get("/")
-async def read_root():
-    index_path = os.path.join(static_dir, "index.html")
-    return FileResponse(index_path)
+# Serve static files
+router.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-# Serve other HTML files in the static directory directly by their paths
-@router.get("/{file_path:path}")
-async def serve_file(file_path: str):
-    file_path = os.path.join(static_dir, file_path)
+# Serve index.html for the root URL and all other paths (except static files)
+@router.get("/{full_path:path}")
+async def serve_file(full_path: str):
+    file_path = os.path.join(static_dir, full_path)
     if os.path.exists(file_path) and os.path.isfile(file_path):
         return FileResponse(file_path)
     else:
-        return FileResponse(os.path.join(static_dir, "404.html"))  # Assuming you have a 404.html for not found pages
+        # Serve index.html for all other paths to handle client-side routing
+        return FileResponse(os.path.join(static_dir, "index.html"))

@@ -1,57 +1,90 @@
+/**
+ * @description Main app controller
+ * - Handles dynamically loading in the correct part of the website based on the currently viewed route
+ */
 import { reactive, html } from './lib.js';
 
-// ============================================================================================
-// Main App.js File
-// ============================================================================================
 
-// App State
-const state = reactive({
-    chatLoading: false,
-    userInput: '',
-    chatHistory: [{
-        role: 'system',
-        content: 'You are a helpful AI assistant. Respond concisely to user input.'
-    }],
+// ============================================================================================
+// Routing
+// ============================================================================================
+// Set up the DOM entry point and template cache
+const domEntryPoint = document.getElementById('app');
+const domTemplateMapCache = new Map();
+
+// Main route state
+const routingState = reactive({
+    currentRoute: window.location.pathname,
+    currentTemplate: null,
 });
 
-// Render the app
+// Helper function for loading in a route and managing the cache
+async function loadRouteTemplate(route) {
+    if (!domTemplateMapCache.has(route)) {
+        try {
+            const routeTemplate = (await import(`./routes/${route}.js`)).template;
+            domTemplateMapCache.set(route, routeTemplate);
+        } catch (error) {
+            console.error(`Failed to load route: ${route}`, error);
+            return html`<h1>404 Not Found</h1>`;
+        }
+    }
+    return domTemplateMapCache.get(route);
+}
+
+// Main route loader function
+async function updateRouteTemplate() {
+    console.log('Updating route template:', routingState.currentRoute);
+    let template;
+    switch (routingState.currentRoute) {
+        case '/':
+            template = html`<h1>Home</h1>`;
+            break;
+        case '/chat':
+            template = await loadRouteTemplate('chat');
+            break;
+        default:
+            template = html`<h1>404 Not Found</h1>`;
+            break;
+    }
+    routingState.currentTemplate = template;
+}
+
+// Run initial route update and watch for changes
+updateRouteTemplate();
+routingState.$on('currentRoute', updateRouteTemplate);
+
+
+// ============================================================================================
+// Watch for route changes
+// ============================================================================================
+// Handles route changes when clicking on links
+window.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A' && e.target.href.startsWith(window.location.origin)) {
+        e.preventDefault();
+        const href = e.target.getAttribute('href');
+        console.log('Route change requested:', href);
+        window.history.pushState({}, '', href);
+        routingState.currentRoute = href;
+    }
+});
+
+// Handles route changes when using the back/forward buttons
+window.addEventListener('popstate', () => {
+    console.log('Route change requested:', window.location.pathname);
+    routingState.currentRoute = window.location.pathname;
+});
+
+
+// ============================================================================================
+// Main App Template (i.e. top-level layout)
+// ============================================================================================
 html`
-    <h1 class="display-6 mb-4 text-center">AI Chat!</h1>
-    <div id="chat-history" class=" shadow-sm border rounded p-3 mb-3" style="height: 300px; overflow-y: auto;">
-        <div>
-            <!-- Chat history entries -->
-            ${() => state.chatHistory?.filter(entry => entry.role != 'system')?.map(entry => html`
-                <div class="${entry.role === 'user' ? 'text-end' : 'text-start'}">
-                    <strong>${entry.role === 'user' ? 'You' : 'AI'}:</strong> ${entry.content}
-                </div>
-            `)}
-        </div>
-    </div>
-    <div class="input-group">
-        <input type="text" id="user-input" disabled="${() => state.chatLoading}" class="form-control" placeholder="Type your message..." value="${() => state.userInput}" @change="${(e) => {
-            // Update user input state
-            state.userInput = e.target.value;
-        }}">
-        <button class="btn btn-primary" type="submit" disabled="${() => state.chatLoading}" @click="${() => {
-            // Add user input to chat history
-            state.chatHistory.push({ content: state.userInput, role: 'user' });
-
-            // Clear user input field
-            state.userInput = '';
-
-            // Send user input to AI
-            state.chatLoading = true
-            fetch('/api/ai/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(state.chatHistory),
-            }).then(response => response.json()).then(data => {
-                // Update chat history with AI response
-                state.chatHistory.push({ content: data.output, role: 'assistant' });
-            }).finally(() => {
-                // Update chat loading state
-                state.chatLoading = false;
-            });
-        }}">Send</button>
-    </div>
-`(document.getElementById('app'));
+    <!-- TODO: Add a navbar -->
+    <a href="/">Home</a>
+    <a href="/chat">Chat</a>
+    <main>
+        ${() => routingState.currentTemplate}
+    </main>
+    <!-- TODO: Add a footer -->
+`(domEntryPoint);

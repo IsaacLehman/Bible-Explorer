@@ -3,7 +3,8 @@ html {
     height: 100%;
 }
 body {
-    background: rgb(169,204,240);
-    background: linear-gradient(180deg, rgba(169,204,240,1) 0%, rgba(233,233,233,1) 79%, rgba(236,236,236,1) 100%);
+    background: rgb(111,143,159);
+    background: radial-gradient(circle, rgba(111,143,159,1) 0%, rgba(30,49,59,1) 100%);
+    color: #f8e0cf;
     font-family: 'Inter', sans-serif;
 }
