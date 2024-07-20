@@ -13,14 +13,49 @@ const chatState = reactive({
     }],
 });
 
+// ============================================================================================
+// Chat function
+// ============================================================================================
+function runChat() {
+    // Add user input to chat history
+    chatState.chatHistory.push({ content: chatState.userInput, role: 'user' });
+
+    // Clear user input field
+    chatState.userInput = '';
+
+    // Send user input to AI
+    chatState.chatLoading = true
+    fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(chatState.chatHistory),
+    }).then(response => response.json()).then(data => {
+        // Update chat history with AI response
+        chatState.chatHistory.push({ content: data.output, role: 'assistant' });
+    }).finally(() => {
+        // Update chat loading chatState
+        chatState.chatLoading = false;
+        // Re-focus on user input (slight delay to ensure focus)
+        setTimeout(() => document.getElementById('user-input').focus(), 10);
+    });
+}
+
+// ============================================================================================
+// Watch for CTRL+Enter key press
+// ============================================================================================
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+        runChat();
+    }
+});
+
 
 // ============================================================================================
 // Main Chat Template
 // ============================================================================================
-const template =
-    // Render the app
-    html`
-    <h1 class="display-6 mb-4 text-center">AI Chat!</h1>
+// Render the app
+const template = html`
+    <h1 class="display-6 mb-4 pt-5 text-center">AI Chat!</h1>
     <div id="chat-history" class=" shadow-sm border rounded p-3 mb-3" style="height: 300px; overflow-y: auto;">
         <div>
             <!-- Chat history entries -->
@@ -32,31 +67,14 @@ const template =
         </div>
     </div>
     <div class="input-group">
-        <input type="text" id="user-input" disabled="${() => chatState.chatLoading}" class="form-control" placeholder="Type your message..." value="${() => chatState.userInput}" @change="${(e) => {
-            // Update user input chatState
-            chatState.userInput = e.target.value;
+        <input type="text" id="user-input" disabled="${() => chatState.chatLoading}" class="form-control" 
+            placeholder="Type your message... CTRL+Enter to send" 
+            value="${() => chatState.userInput}" 
+            @keyup="${(e) => {
+                // Update user input chatState
+                chatState.userInput = e.target.value;
         }}">
-        <button class="btn btn-primary" type="submit" disabled="${() => chatState.chatLoading}" @click="${() => {
-            // Add user input to chat history
-            chatState.chatHistory.push({ content: chatState.userInput, role: 'user' });
-
-            // Clear user input field
-            chatState.userInput = '';
-
-            // Send user input to AI
-            chatState.chatLoading = true
-            fetch('/api/ai/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(chatState.chatHistory),
-            }).then(response => response.json()).then(data => {
-                // Update chat history with AI response
-                chatState.chatHistory.push({ content: data.output, role: 'assistant' });
-            }).finally(() => {
-                // Update chat loading chatState
-                chatState.chatLoading = false;
-            });
-        }}">Send</button>
+        <button class="btn btn-primary" type="submit" disabled="${() => chatState.chatLoading}" @click="${() => runChat()}">Send</button>
     </div>
 `;
 

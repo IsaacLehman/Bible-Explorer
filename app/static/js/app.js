@@ -2,7 +2,11 @@
  * @description Main app controller
  * - Handles dynamically loading in the correct part of the website based on the currently viewed route
  */
-import { reactive, html } from './lib.js';
+import { 
+    reactive, html,
+    routingState,
+} from './lib.js';
+import * as navLib from './partials/nav.js';
 
 
 // ============================================================================================
@@ -11,12 +15,6 @@ import { reactive, html } from './lib.js';
 // Set up the DOM entry point and template cache
 const domEntryPoint = document.getElementById('app');
 const domTemplateMapCache = new Map();
-
-// Main route state
-const routingState = reactive({
-    currentRoute: window.location.pathname,
-    currentTemplate: null,
-});
 
 // Helper function for loading in a route and managing the cache
 async function loadRouteTemplate(route) {
@@ -80,9 +78,7 @@ window.addEventListener('popstate', () => {
 // Main App Template (i.e. top-level layout)
 // ============================================================================================
 html`
-    <!-- TODO: Add a navbar -->
-    <a href="/">Home</a>
-    <a href="/chat">Chat</a>
+    ${navLib.template}
     <main>
         ${() => routingState.currentTemplate}
     </main>
