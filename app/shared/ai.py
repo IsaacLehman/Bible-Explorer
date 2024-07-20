@@ -76,7 +76,7 @@ class AI_Response(BaseModel):
 """
 # Global OpenAI client
 client = OpenAI(api_key=get_secret('OPENAI_API_KEY'))
-def ai_chat(source: str, messages: List[Message], model: str = "gpt-3.5-turbo", config: Dict[str, Any] = {
+def ai_chat(source: str, messages: List[Message], model: str = "gpt-4o-mini", config: Dict[str, Any] = {
     "stream": False,
     "temperature": 0.65,
 }) -> Union[AI_Response, Dict[str, str]]:
