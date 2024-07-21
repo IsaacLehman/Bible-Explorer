@@ -57,7 +57,7 @@ function generateRouteLink(route) {
 // Nav Bar Template
 // ============================================================================================
 const template = html`
-    <nav class="navbar fixed-top navbar-expand-lg border-bottom border-body" style="background-color: #e3f2fd;">
+    <nav class="navbar fixed-top navbar-expand-lg border-bottom border-body bg_light">
         <div class="container">
             <a class="navbar-brand" href="/">
                 <img src="./img/icons/bible-explorer-256.png" alt="Bible Explorer Icon" width="30" height="30" class="rounded me-3"> 

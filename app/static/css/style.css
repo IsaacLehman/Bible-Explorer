@@ -1,14 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap'); /* Inter Font */
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"); /* Bootstrap Icons */
+
+:root {
+    /* Variables */
+    --light-bg: #e3f2fd;
+    --dark-bg: rgb(111,143,159);
+}
+
 html {
     height: 100%;
 }
 body {
-    background: rgb(111,143,159);
+    background: var(--dark-bg);
     color: white;
     font-family: 'Inter', sans-serif;
 }
 main {
     /* Stay below the fixed navbar */
     margin-top: 58px;
+}
+
+/* ================================================== */
+/* Helpers */
+.bg_dark {
+    background: var(--dark-bg);
+    color: white;
+}
+.bg_light {
+    background: var(--light-bg);
+    color: #333;
 }
