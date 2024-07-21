@@ -11,6 +11,21 @@ import {
 // ============================================================================================
 const homeState = reactive({
     maxQueryLength: 100,
+    versions: [
+        {
+            name: 'KJV',
+            label: 'King James Version',
+            checked: false,
+        },
+        {
+            name: 'ASV',
+            label: 'American Standard Version',
+            checked: true,
+        },
+    ],
+    getSelectedVersion: () => {
+        return this.versions.find(version => version.checked).name;
+    },
     query: '',
     // TODO
 });
@@ -44,22 +59,16 @@ const template = html`
             <div class="form-text text-end text-light">${() => homeState.query.length}/${homeState.maxQueryLength}</div>
         </div>
         <div class="d-flex justify-content-center mt-2">
-            <div class="p-3 border rounded shadow-sm bg_light me-3">
-                <div class="form-check-reverse">
-                    <input class="form-check-input" type="radio" name="version" id="version1" value="KJV" checked>
-                    <label class="form-check-label me-2" for="version1">
-                        King James Version
-                    </label>
+            ${() => homeState.versions.map(version => html`
+                <div class="p-3 border rounded shadow-sm bg_light me-3" @click="${() => {
+                    homeState.versions.forEach(v => v.checked = false);
+                    version.checked = true;
+                }}">
+                    <i class="${() => version.checked ? 'bi bi-journal-bookmark-fill' : 'bi bi-journal-bookmark'}"></i>
+                    <span class="ms-2">${version.label}</span>
                 </div>
-            </div>
-            <div class="p-3 border rounded shadow-sm bg_light me-3">
-                <div class="form-check-reverse">
-                    <input class="form-check-input" type="radio" name="version" id="version2" value="ASV">
-                    <label class="form-check-label me-2" for="version2">
-                        American Standard Version
-                    </label>
-                </div>
-            </div>
+            `)}
+         
             <div class="p-3 border rounded shadow-sm bg_light">
                 <div class="form-check-reverse">
                     <input class="form-check-input" type="checkbox" id="context">
