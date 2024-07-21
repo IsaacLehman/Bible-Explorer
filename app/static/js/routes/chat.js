@@ -93,13 +93,14 @@ const template = html`
         </div>
     </div>
     <div class="input-group">
-        <input type="text" id="user-input" disabled="${() => chatState.chatLoading}" class="form-control" 
+        <textarea type="text" id="user-input" disabled="${() => chatState.chatLoading}" class="form-control"
+            rows="1"
             placeholder="Type your message... CTRL+Enter to send" 
             value="${() => chatState.userInput}" 
             @keyup="${(e) => {
                 // Update user input chatState
                 chatState.userInput = e.target.value;
-        }}">
+        }}"></textarea>
         <button class="btn btn-primary" type="submit" disabled="${() => chatState.chatLoading}" @click="${() => runChat()}">Send</button>
     </div>
 `;
