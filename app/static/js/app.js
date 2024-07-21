@@ -36,7 +36,7 @@ async function updateRouteTemplate() {
     let template;
     switch (routingState.currentRoute) {
         case '/':
-            template = html`<h1>Home</h1>`;
+            template = await loadRouteTemplate('home');
             break;
         case '/chat':
             template = await loadRouteTemplate('chat');

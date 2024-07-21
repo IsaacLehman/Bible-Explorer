@@ -6,7 +6,9 @@ import {
     toHtml 
 } from '../lib.js';
 
-// App chatState
+// ============================================================================================
+// App State
+// ============================================================================================
 const chatState = reactive({
     chatLoading: false,
     userInput: '',
@@ -77,10 +79,9 @@ document.addEventListener('keydown', (e) => {
 // ============================================================================================
 // Main Chat Template
 // ============================================================================================
-// Render the app
 const template = html`
     <h1 class="display-6 mb-4 pt-5 text-center">AI Chat!</h1>
-    <div id="chat-history" class=" shadow-sm border rounded p-3 mb-3" style="height: 300px; overflow-y: auto;">
+    <div id="chat-history" class=" shadow-sm border rounded p-3 mb-3" style="height: 500px; overflow-y: auto;">
         <div>
             <!-- Chat history entries -->
             ${() => chatState.chatHistory?.filter(entry => entry.role != 'system')?.map(entry => html`
