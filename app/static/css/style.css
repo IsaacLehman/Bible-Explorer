@@ -15,10 +15,6 @@ body {
     color: white;
     font-family: 'Inter', sans-serif;
 }
-main {
-    /* Stay below the fixed navbar */
-    margin-top: 58px;
-}
 
 /* ================================================== */
 /* Helpers */

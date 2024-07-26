@@ -7,13 +7,22 @@ from fastapi import APIRouter, HTTPException, Request
 import json
 
 from shared.ai import ai_chat, Message, AI_Response
+from shared.bible import BibleVerse, BibleSearchResponse, search_bible, get_bible_versions
 
-router = APIRouter(
+ai_router = APIRouter(
     prefix="/api/ai", # This will be the prefix of the API
     tags=["AI"], # This will be the tag for the API documentation
 )
 
-@router.post("/chat", response_model=AI_Response)
+bible_router = APIRouter(
+    prefix="/api/bible", # This will be the prefix of the API
+    tags=["Bible"], # This will be the tag for the API documentation
+)
+
+"""
+======================================================= AI ROUTES =======================================================
+"""
+@ai_router.post("/chat", response_model=AI_Response)
 def chat_with_ai(messages: List[Message], model: str = "gpt-3.5-turbo") -> AI_Response:
     """
     Route to chat with the AI
@@ -26,7 +35,7 @@ def chat_with_ai(messages: List[Message], model: str = "gpt-3.5-turbo") -> AI_Re
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/object-lesson-ideas", response_model=AI_Response)
+@ai_router.post("/object-lesson-ideas", response_model=AI_Response)
 def object_lesson_ideas(topic: str, age_group: str = "1st through 6th Grade", model: str = "gpt-3.5-turbo") -> AI_Response:
     """
     Route to generate object lesson ideas
@@ -86,4 +95,30 @@ def object_lesson_ideas(topic: str, age_group: str = "1st through 6th Grade", mo
             
         return response
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+"""
+======================================================= BIBLE ROUTES =======================================================
+"""
+@bible_router.get("/versions", response_model=List[str])
+def get_bible_versions_route() -> List[str]:
+    """
+    Route to get a list of all available Bible versions
+    """
+    try:
+        return get_bible_versions()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@bible_router.get("/search", response_model=BibleSearchResponse)
+def search_bible_verses(search_text: str, bible_version: str = "kjv", max_results: int = 5, add_context: bool = False, context_size: int = 2) -> BibleSearchResponse:
+    """
+    Route to search the Bible for verses
+    """
+    try:
+        response, notes = search_bible(search_text, bible_version, max_results, add_context, context_size)
+        return BibleSearchResponse(verses=response, notes=notes)
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))

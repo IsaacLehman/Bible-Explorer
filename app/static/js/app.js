@@ -4,7 +4,7 @@
  */
 import { 
     reactive, html,
-    routingState,
+    routingState, alertingState,
 } from './lib.js';
 import * as navLib from './partials/nav.js';
 
@@ -79,7 +79,18 @@ window.addEventListener('popstate', () => {
 // ============================================================================================
 html`
     ${navLib.template}
-    <main>
+    ${() => alertingState.alertVisible ? html`
+        <div class="alert alert-${alertingState.alertType} alert-dismissible fade show rounded-0 py-1" role="alert">
+            <div class="container position-relative">
+                <i class="${alertingState.alertIcon} me-2"></i>
+                ${alertingState.alertMessage}
+                <span class="position-absolute top-0 end-0" style="cursor: pointer;" @click="${() => alertingState.alertVisible = false}">
+                    <i class="bi bi-x-lg"></i>
+                </span>
+            </div>
+        </div>
+    ` : ''}
+    <main class="container">
         ${() => routingState.currentTemplate}
     </main>
     <!-- TODO: Add a footer -->

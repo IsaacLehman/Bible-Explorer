@@ -16,7 +16,7 @@ bible_explorer_env/
 
 # Bibles
 app/bible/formatted_versions/*.json
-app/static/bibles/*.json
+app/shared/bibles/*.json
 
 # Distribution / packaging
 .Python

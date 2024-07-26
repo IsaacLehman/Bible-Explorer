@@ -3,7 +3,8 @@
  */
 import { 
     reactive, html,
-    toHtml 
+    toHtml,
+    alertingState,
 } from '../lib.js';
 
 // ============================================================================================
@@ -44,6 +45,12 @@ document.head.insertAdjacentHTML('beforeend', `<style>${chatStyle}</style>`);
 // Chat function
 // ============================================================================================
 function runChat() {
+    // Validate user input
+    if (chatState.userInput.trim().length === 0) {
+        alertingState.setAlert('Please enter a message before sending.', 'danger');
+        return;
+    };
+
     // Add user input to chat history
     chatState.chatHistory.push({ content: chatState.userInput, role: 'user' });
 
@@ -80,7 +87,7 @@ document.addEventListener('keydown', (e) => {
 // Main Chat Template
 // ============================================================================================
 const template = html`
-    <h1 class="display-6 mb-4 pt-5 text-center">AI Chat!</h1>
+    <h1 class="display-6 my-3 text-center">AI Chat!</h1>
     <div id="chat-history" class=" shadow-sm border rounded p-3 mb-3" style="height: 500px; overflow-y: auto;">
         <div>
             <!-- Chat history entries -->

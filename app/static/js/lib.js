@@ -25,6 +25,22 @@ const routingState = reactive({
     currentTemplate: null,
 });
 
+const alertingState = reactive({
+    alertMessage: '',
+    alertType: 'success',
+    alertIcon: 'bi bi-info-circle',
+    alertVisible: false,
+    setAlert: (message, type, icon) => {
+        alertingState.alertMessage = message;
+        alertingState.alertType = type;
+        alertingState.alertIcon = icon || 'bi bi-info-circle';
+        alertingState.alertVisible = true;
+    },
+    hideAlert: () => {
+        alertingState.alertVisible = false;
+    },
+});
+
 // ============================================================================================
 // Exports
 // ============================================================================================
@@ -37,4 +53,5 @@ export {
 
     // States
     routingState,
+    alertingState,
 };

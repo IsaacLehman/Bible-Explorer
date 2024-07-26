@@ -22,8 +22,11 @@ create_db_and_tables()
 """
 ====================================================== ROUTES =======================================================
 """
-from router.api.routes import router as ai_router
+from router.api.routes import ai_router
 app.include_router(ai_router)
+
+from router.api.routes import bible_router
+app.include_router(bible_router)
 
 from router.web.routes import router as web_router
 app.include_router(web_router)
