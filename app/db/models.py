@@ -19,3 +19,15 @@ class AI_Log(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)})
 
+
+class Bible_Search_Log(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    search_text: str
+    bible_version: str
+    max_results: int
+    add_context: bool
+    context_size: int
+    response: str
+    runtime_seconds: float
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)})

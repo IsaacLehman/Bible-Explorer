@@ -8,8 +8,9 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Union, Optional
 from numba import njit
 
-
 from shared.secrets import get_secret
+from db.models import Bible_Search_Log
+from db.controller import get_db
 
 """
 ======================================================= CONFIG =======================================================
@@ -209,6 +210,26 @@ def search_bible(search_text: str, bible_version: str, max_results: int = 5, add
                     context.append(current_verse["text"])
             verse["context"] = context
         add_note("Added context to verses")
+
+    # Log the search
+    with get_db() as db:
+        log = Bible_Search_Log(
+            search_text=search_text,
+            bible_version=bible_version,
+            max_results=max_results,
+            add_context=add_context,
+            context_size=context_size,
+            response=json.dumps([{
+                "book": verse["book"],
+                "chapter": verse["chapter"],
+                "verse": verse["verse"],
+                "similarity": verse["similarity"],
+                "relative_similarity": verse["relative_similarity"],
+            } for verse in top_verses]),
+            runtime_seconds=time.time() - start
+        )
+        db.add(log)
+        db.commit()
 
     # Format and return the response
     print([f"note: {note['note']}, elapsed_time: {note['elapsed_time']:0.2f}s" for note in notes])

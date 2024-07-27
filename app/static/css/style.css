@@ -3,16 +3,20 @@
 
 :root {
     /* Variables */
+    --main-bg: white;
     --light-bg: #e3f2fd;
     --dark-bg: rgb(111,143,159);
+    --primary-action: hsl(205.38deg 71.38% 39.48%);
+    --primary-action-hover: hsl(205.38deg 71.38% 35.48%);
+    --primary-action-active: hsl(205.38deg 71.38% 31.48%);
 }
 
 html {
     height: 100%;
 }
 body {
-    background: var(--dark-bg);
-    color: white;
+    background: var(--main-bg);
+    color: #333;
     font-family: 'Inter', sans-serif;
 }
 
@@ -25,4 +29,59 @@ body {
 .bg_light {
     background: var(--light-bg);
     color: #333;
+}
+
+
+/* ================================================== */
+/* Custom Buttons */
+.option-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+}
+.option-btn:hover {
+    background-color: hsl(205 87% 92% / 1);
+}
+.option-btn:active {
+    background-color: hsl(205 87% 89% / 1);
+}
+.option-btn .bi {
+    font-size: 1.25rem;
+}
+
+/* ================================================== */
+/* Button Overrides */
+.btn-primary {
+    background-color: var(--primary-action);
+    color: white;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: var(--primary-action-hover);
+}
+.btn-primary:active {
+    background-color: var(--primary-action-active);
+}
+
+/* ================================================== */
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  /* background: #efefef; */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #abb9c2;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9e9e9e;
+  border-radius: 8px;
 }

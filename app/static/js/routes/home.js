@@ -57,25 +57,8 @@ const homeState = reactive({
 // Home Style Sheet
 // ============================================================================================
 const homeStyle = `
-    .hero {
-        background-color: hsl(200 20% 58% / 1);
-    }
-
-    .option-btn {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1.5rem;
-    }
-    .option-btn:hover {
-        background-color: hsl(205 87% 92% / 1);
-    }
-    .option-btn:active {
-        background-color: hsl(205 87% 89% / 1);
-    }
-    .option-btn .bi {
-        font-size: 1.25rem;
+    .bible-search-response-container {
+        padding: 2rem !important;
     }
 `;
 // Add the home style to the head of the document
@@ -97,8 +80,8 @@ async function searchBible() {
     homeState.searchStats = [];
 
     // Show loading spinner and alert
+    alertingState.hideAlert();
     homeState.loading = true;
-    alertingState.setAlert('Searching the Bible...', 'info', 'bi bi-search');
 
     // Prepare search parameters
     const version = homeState.getSelectedVersion();
@@ -124,7 +107,6 @@ async function searchBible() {
     homeState.searchStats = data.notes;
 
     // Hide the alert
-    alertingState.hideAlert();
     homeState.loading = false;
 }
 
@@ -134,7 +116,7 @@ async function searchBible() {
 // ============================================================================================
 const template = html`
     <div class="py-4"></div>
-    <div class="hero p-5 text-center rounded-3">
+    <div class="hero p-5 text-center rounded-3 bg_light">
         <img class="bi mt-4 mb-3 rounded" src="./img/icons/bible-explorer-256.png" alt="Bible Explorer Icon" width="72" height="72">
         <h1 class="text-body-emphasis">Bible Explorer</h1>
         <p class="mx-auto fs-5 text-muted">Search the Bible with ease!</p>
@@ -169,20 +151,18 @@ const template = html`
             `)}
         </div>
         <div class="d-flex justify-content-center mt-3">
-            <button type="button" class="btn btn-primary w-75" @click="${() => searchBible()}">Search</button>
+            <button type="button" class="btn btn-primary w-75" @click="${() => searchBible()}" disabled="${() => homeState.loading}">
+                <i class="bi bi-search me-3"></i> Search the Bible
+                ${() => homeState.loading ? html`<div class="spinner-border spinner-border-sm text-light" role="status"></div>` : ''}
+            </button>
         </div>
     </div>
     <div class="container mt-3">
         <div class="row">
-            ${() => homeState.searchStats.map(stat => html`
-                <div class="col-md-12 text-end text-muted">
-                    <small>${stat.note} (Elapsed Time: ${stat.elapsed_time.toFixed(2)}s)</small>
-                </div>                   
-            `)}
             ${() => homeState.searchResults.map(result => html`
                 <div class="col-md-12">
-                    <div class="card shadow-sm p-3 mb-3 position-relative">
-                        <div class="position-absolute top-0 end-0 bg-light text-dark rounded-pill px-3 py-1">
+                    <div class="card p-3 mb-3 position-relative bible-search-response-container">
+                        <div class="position-absolute top-0 end-0 bg-light text-dark rounded-pill px-3 py-1 mt-1 me-1">
                             ${(100*result.relative_similarity).toFixed(0)}%
                         </div>
                         <h5 class="card-title">${result.book_name} ${result.chapter}:${result.verse}</h5>
@@ -204,13 +184,6 @@ const template = html`
                     </div>
                 </div>
             `)}
-            ${() => homeState.loading ? html`
-                <div class="col-md-12 text-center">
-                    <div class="spinner-border text-light" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            ` : ''}
         </div>
     </div>
 `;
