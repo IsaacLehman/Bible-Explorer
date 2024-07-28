@@ -38,6 +38,24 @@ async function searchBible(version, query, limit = 10, context = { add: true, si
 }
 
 // ============================================================================================
+// Shared AI Functions
+// ============================================================================================
+async function runAIChat(systemPrompt, chatHistory, model='gpt-4o-mini') {
+    const _chatHistory = [{role: 'system', content: systemPrompt}, ...chatHistory];
+    const response = await fetch('/api/ai/chat?model=' + model, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_chatHistory),
+    });
+
+    if (!response.ok) {
+        return { output: 'Failed to communicate with AI.' };
+    }
+
+    return response.json();
+}
+
+// ============================================================================================
 // Shared States
 // ============================================================================================
 const routingState = reactive({
@@ -86,6 +104,7 @@ export {
     // Helper functions
     toHtml,
     searchBible,
+    runAIChat,
 
     // States
     routingState,

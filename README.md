@@ -13,9 +13,15 @@ pip install fastapi numpy pandas openai sqlmodel vertexai numba
 ## Add your `app/shared/env.json` file at 
 ```json
 {
-    "OPENAI_API_KEY": "your_openai_api_key"
+    "OPENAI_API_KEY": "your_openai_api_key",
+    "VERTEX_AI_SERVICE_ACCOUNT": "your_vertex_ai_service_account", // Ensure this service account has access to the Vertex AI embeddings
 }
 ```
+
+## Add in the bible versions w/ embeddings
+1. Download the bible versions from [Google Drive](https://drive.google.com/drive/folders/1Wyzaj6QTEpYmaqpJV-Livib13G-zAYkH?usp=sharing)
+2. Add the `bibles` folder to the `app/shared` directory (i.e. `app/shared/bibles`)
+3. Move all of the `.json` files you downloaded to the `app/shared/bibles` directory
 
 ## Run locally
 ```bash

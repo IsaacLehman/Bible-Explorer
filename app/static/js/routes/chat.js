@@ -3,7 +3,7 @@
  */
 import { 
     reactive, html,
-    toHtml,
+    toHtml, runAIChat,
     alertingState,
 } from '../lib.js';
 
@@ -13,10 +13,8 @@ import {
 const chatState = reactive({
     chatLoading: false,
     userInput: '',
-    chatHistory: [{
-        role: 'system',
-        content: 'You are a helpful AI assistant. Respond concisely to user input in Markdown format.'
-    }],
+    systemPrompt: 'You are a helpful AI assistant. Respond concisely to user input in Markdown format.',
+    chatHistory: [],
 });
 
 // ============================================================================================
@@ -74,16 +72,17 @@ function runChat() {
     // Add user input to chat history
     chatState.chatHistory.push({ content: chatState.userInput, role: 'user' });
 
+    setTimeout(() => {
+        // Scroll to the bottom of the chat history
+        document.getElementById('chat-history').scrollTop = document.getElementById('chat-history').scrollHeight;
+    }, 10);
+
     // Clear user input field
     chatState.userInput = '';
 
     // Send user input to AI
-    chatState.chatLoading = true
-    fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(chatState.chatHistory),
-    }).then(response => response.json()).then(data => {
+    chatState.chatLoading = true;
+    runAIChat(chatState.systemPrompt, chatState.chatHistory, 'gpt-4o-mini').then(data => {
         // Update chat history with AI response
         chatState.chatHistory.push({ content: data.output, role: 'assistant' });
     }).finally(() => {

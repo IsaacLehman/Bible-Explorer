@@ -3,7 +3,7 @@
  */
 import {
     reactive, html,
-    toHtml,
+    toHtml, searchBible, runAIChat,
     alertingState,
 } from '../lib.js';
 
@@ -38,7 +38,7 @@ const homeState = reactive({
             help: 'Include the surrounding context of the verse in the search results.',
             iconOn: 'bi bi-check-circle-fill',
             iconOff: 'bi bi-check-circle',
-            checked: false,
+            checked: true,
         },
     ],
 
@@ -50,6 +50,7 @@ const homeState = reactive({
     loading: false,
     searchResults: [],
     searchStats: [],
+    aiResponse: null,
 });
 
 
@@ -68,7 +69,7 @@ document.head.insertAdjacentHTML('beforeend', `<style>${homeStyle}</style>`);
 // ============================================================================================
 // Search Function
 // ============================================================================================
-async function searchBible() {
+async function runBibleSearch() {
     // Validate user input
     if (homeState.query.trim().length === 0) {
         alertingState.setAlert('Please enter a question before searching.', 'danger');
@@ -78,6 +79,7 @@ async function searchBible() {
     // Clear previous search results
     homeState.searchResults = [];
     homeState.searchStats = [];
+    homeState.aiResponse = null;
 
     // Show loading spinner and alert
     alertingState.hideAlert();
@@ -85,17 +87,27 @@ async function searchBible() {
 
     // Prepare search parameters
     const version = homeState.getSelectedVersion();
-    const context = homeState.options.find(option => option.name === 'context').checked;
+    const context = true; // homeState.options.find(option => option.name === 'context').checked; - REASON: always true so people can click on context even when they didn't ask for it and have it show
     const contextSize = 2;
     const limit = 10;
 
     // Send search query to the server
-    const data = await lib.searchBible(version, homeState.query, limit, { add: context, size: contextSize });
+    const data = await searchBible(version, homeState.query, limit, { add: context, size: contextSize });
 
     // Update search results
     homeState.searchResults = data.verses;
     homeState.searchStats = data.notes;
 
+    // Set AI Summary to loading state
+    homeState.aiResponse = { output: 'Loading summary...' };
+    // Get an AI summary of the responses
+    homeState.aiResponse = await runAIChat(
+            `You are a Bible explorer assistant. The user will ask a question and we will provide a variety of Bible verses that may answer the question.\n` +
+            `Your task is to summarize the verses and provide a concise response to the user's question.` +
+            `Do your best to provide a helpful and accurate response to the users query. Try to keep the response pointed and short, do not add any commentary or personal opinion. If you are unsure of the answer, you can say that you are unsure.`,
+            [{role: 'user', content: `User query: "${homeState.query}"\n\nBible version selected: ${version}\nVerses found (may or may not be relevent): ${JSON.stringify(homeState.searchResults)}`}],
+            'gpt-4o-mini'
+    );
     // Hide the alert
     homeState.loading = false;
 }
@@ -123,9 +135,9 @@ const template = html`
             }}"></textarea>
             <div class="form-text text-end text-light">${() => homeState.query.length}/${homeState.maxQueryLength}</div>
         </div>
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center mobile-flex-column">
             ${() => homeState.versions.map(version => html`
-                <div class="rounded shadow-sm bg_light me-3 option-btn mt-2" @click="${() => {
+                <div class="rounded shadow-sm bg_light me-3 option-btn mt-2 mobile-flex-item" @click="${() => {
                     homeState.versions.forEach(v => v.checked = false);
                     version.checked = true;
                 }}">
@@ -134,20 +146,26 @@ const template = html`
                 </div>
             `)}
             ${() => homeState.options.map(option => html`
-                <div class="rounded shadow-sm bg_light me-3 option-btn mt-2" @click="${() => option.checked = !option.checked}">
+                <div class="rounded shadow-sm bg_light me-3 option-btn mt-2 mobile-flex-item" @click="${() => option.checked = !option.checked}">
                     <i class="${() => option.checked ? option.iconOn : option.iconOff}"></i>
                     <span class="ms-2">${option.label}</span>
                 </div>
             `)}
         </div>
         <div class="d-flex justify-content-center mt-3">
-            <button type="button" class="btn btn-primary w-75" @click="${() => searchBible()}" disabled="${() => homeState.loading}">
+            <button type="button" class="btn btn-primary w-75" @click="${() => runBibleSearch()}" disabled="${() => homeState.loading}">
                 <i class="bi bi-search me-3"></i> Search the Bible
                 ${() => homeState.loading ? html`<div class="spinner-border spinner-border-sm text-light" role="status"></div>` : ''}
             </button>
         </div>
     </div>
-    <div class="container mt-3">
+    <div class="container mt-4">
+        ${() => homeState.aiResponse ? html`
+            <div class="card p-3 mb-3 border-primary">
+                <h5 class="card-title text-muted">Summary</h5>
+                <div class="card-text">${toHtml(homeState.aiResponse.output)}</div>
+            </div>
+        ` : ''}
         <div class="row">
             ${() => homeState.searchResults.map(result => html`
                 <div class="col-md-12">

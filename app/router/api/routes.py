@@ -23,7 +23,7 @@ bible_router = APIRouter(
 ======================================================= AI ROUTES =======================================================
 """
 @ai_router.post("/chat", response_model=AI_Response)
-def chat_with_ai(messages: List[Message], model: str = "gpt-3.5-turbo") -> AI_Response:
+def chat_with_ai(messages: List[Message], model: str = "gpt-4o-mini") -> AI_Response:
     """
     Route to chat with the AI
     """
@@ -36,7 +36,7 @@ def chat_with_ai(messages: List[Message], model: str = "gpt-3.5-turbo") -> AI_Re
         raise HTTPException(status_code=500, detail=str(e))
     
 @ai_router.post("/object-lesson-ideas", response_model=AI_Response)
-def object_lesson_ideas(topic: str, age_group: str = "1st through 6th Grade", model: str = "gpt-3.5-turbo") -> AI_Response:
+def object_lesson_ideas(topic: str, age_group: str = "1st through 6th Grade", model: str = "gpt-4o-mini") -> AI_Response:
     """
     Route to generate object lesson ideas
     """
