@@ -133,7 +133,7 @@ const template = html`
                 }
                 homeState.query = newQuery
             }}"></textarea>
-            <div class="form-text text-end text-light">${() => homeState.query.length}/${homeState.maxQueryLength}</div>
+            <div class="form-text text-end">${() => homeState.query.length}/${homeState.maxQueryLength}</div>
         </div>
         <div class="d-flex justify-content-center mobile-flex-column">
             ${() => homeState.versions.map(version => html`
@@ -154,7 +154,7 @@ const template = html`
         </div>
         <div class="d-flex justify-content-center mt-3">
             <button type="button" class="btn btn-primary w-75" @click="${() => runBibleSearch()}" disabled="${() => homeState.loading}">
-                <i class="bi bi-search me-3"></i> Search the Bible
+                <i class="bi bi-search me-3"></i> Explore the Bible
                 ${() => homeState.loading ? html`<div class="spinner-border spinner-border-sm text-light" role="status"></div>` : ''}
             </button>
         </div>
