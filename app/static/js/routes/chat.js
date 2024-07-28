@@ -37,6 +37,26 @@ const chatStyle = `
     #chat-history tr:hover {
         background-color: #f1f1f1;
     }
+
+    .chat-box > p:last-child {
+        margin-bottom: 0;
+    }
+        
+    .chat-box {
+        width: auto;
+        max-width: 80%;
+        min-width: 20%;
+    }
+    
+    .user-chat {
+        background-color: white;
+        margin-left: auto;
+    }
+
+    .assistant-chat {
+        background-color:  var(--light-bg);
+        margin-right: auto;
+    }
 `;
 // Add the chat style to the head of the document
 document.head.insertAdjacentHTML('beforeend', `<style>${chatStyle}</style>`);
@@ -69,8 +89,12 @@ function runChat() {
     }).finally(() => {
         // Update chat loading chatState
         chatState.chatLoading = false;
-        // Re-focus on user input (slight delay to ensure focus)
-        setTimeout(() => document.getElementById('user-input').focus(), 10);
+        setTimeout(() => {
+            // Re-focus on user input (slight delay to ensure focus)
+            document.getElementById('user-input').focus()
+            // Scroll to the bottom of the chat history
+            document.getElementById('chat-history').scrollTop = document.getElementById('chat-history').scrollHeight;
+        }, 10);
     });
 }
 
@@ -78,7 +102,7 @@ function runChat() {
 // Watch for CTRL+Enter key press
 // ============================================================================================
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 'Enter' && e.ctrlKey && window.location.pathname === '/chat') {
         runChat();
     }
 });
@@ -88,12 +112,13 @@ document.addEventListener('keydown', (e) => {
 // ============================================================================================
 const template = html`
     <h1 class="display-6 my-3 text-center">AI Chat!</h1>
-    <div id="chat-history" class=" shadow-sm border rounded p-3 mb-3" style="height: 500px; overflow-y: auto;">
-        <div>
+    <div id="chat-history" class="border rounded p-3 mb-3" style="height: 500px; overflow-y: auto;">
+        <div class="d-flex flex-column gap-2">
             <!-- Chat history entries -->
             ${() => chatState.chatHistory?.filter(entry => entry.role != 'system')?.map(entry => html`
-                <div class="${entry.role === 'user' ? 'text-end' : 'text-start'}">
-                    <strong>${entry.role === 'user' ? 'You' : 'AI'}:</strong> 
+                <div class="${`chat-box ${entry.role}-chat rounded shadow-sm p-2`}">
+                    <small><strong>${entry.role === 'user' ? '<i class="bi bi-person me-2"></i> You' : '<i class="bi bi-cpu me-2"></i> AI'}</strong></small>
+                    <hr class="my-1">
                     ${toHtml(entry.content)}
                 </div>
             `)}

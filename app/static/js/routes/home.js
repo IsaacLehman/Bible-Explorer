@@ -89,18 +89,8 @@ async function searchBible() {
     const contextSize = 2;
     const limit = 10;
 
-    // Build the search query
-    const urlParas = new URLSearchParams();
-    urlParas.append('search_text', homeState.query);
-    urlParas.append('bible_version', version);
-    urlParas.append('add_context', true);
-    urlParas.append('context_size', contextSize);
-    urlParas.append('max_results', limit);
-    const url = `/api/bible/search?${urlParas.toString()}`;
-
     // Send search query to the server
-    const response = await fetch(url);
-    const data = await response.json();    
+    const data = await lib.searchBible(version, homeState.query, limit, { add: context, size: contextSize });
 
     // Update search results
     homeState.searchResults = data.verses;

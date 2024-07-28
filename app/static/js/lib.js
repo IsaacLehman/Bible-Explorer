@@ -18,11 +18,46 @@ function toHtml(markdown) {
 }
 
 // ============================================================================================
+// Shared Bible Functions
+// ============================================================================================
+async function searchBible(version, query, limit = 10, context = { add: true, size: 2 }) {
+    const urlParams = new URLSearchParams({
+        bible_version: version,
+        search_text: query,
+        max_results: limit,
+        add_context: context.add ? 'true' : 'false',
+        context_size: context.size,
+    });
+    const response = await fetch(`/api/bible/search?${urlParams.toString()}`);
+
+    if (!response.ok) {
+        return [];
+    }
+
+    return response.json(); // {notes: [], verses: []}
+}
+
+// ============================================================================================
 // Shared States
 // ============================================================================================
 const routingState = reactive({
     currentRoute: window.location.pathname,
     currentTemplate: null,
+    // Route Registration | Ensure there is a {name}.js file in the routes folder
+    routes: [
+        {
+            url: '/',
+            name: 'home',
+            label: 'Home',
+            icon: 'bi bi-house-door',
+        },
+        {
+            url: '/chat',
+            name: 'chat',
+            label: 'Chat',
+            icon: 'bi bi-chat-left-text',
+        },
+    ]
 });
 
 const alertingState = reactive({
@@ -50,6 +85,7 @@ export {
 
     // Helper functions
     toHtml,
+    searchBible,
 
     // States
     routingState,

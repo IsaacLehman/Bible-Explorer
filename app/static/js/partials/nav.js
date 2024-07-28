@@ -18,22 +18,6 @@ const chatStyle = `
 document.head.insertAdjacentHTML('beforeend', `<style>${chatStyle}</style>`);
 
 // ============================================================================================
-// Route Registration
-// ============================================================================================
-const routes = [
-    {
-        url: '/',
-        label: 'Home',
-        icon: 'bi bi-house-door',
-    },
-    {
-        url: '/chat',
-        label: 'Chat',
-        icon: 'bi bi-chat-left-text',
-    },
-];
-
-// ============================================================================================
 // Helper Functions
 // ============================================================================================
 function generateRouteLink(route) {
@@ -43,10 +27,7 @@ function generateRouteLink(route) {
                 href="${route.url}"
                 active="${() => routingState.currentRoute === route.url}"
                 title="${route.label}"
-                @click="${(e) => {
-                    e.preventDefault();
-                    routingState.currentRoute = route.url;
-            }}">
+            >
                 <i class="${route.icon} me-1 route-icon"></i> ${route.label}
             </a>
         </li>
@@ -68,7 +49,7 @@ const template = html`
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    ${() => routes.map(route => generateRouteLink(route))}
+                    ${() => routingState.routes.map(route => generateRouteLink(route))}
                 </ul>
             </div>
         </div>

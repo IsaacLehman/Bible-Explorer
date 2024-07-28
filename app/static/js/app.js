@@ -32,20 +32,16 @@ async function loadRouteTemplate(route) {
 
 // Main route loader function
 async function updateRouteTemplate() {
-    console.log('Updating route template:', routingState.currentRoute);
-    let template;
-    switch (routingState.currentRoute) {
-        case '/':
-            template = await loadRouteTemplate('home');
-            break;
-        case '/chat':
-            template = await loadRouteTemplate('chat');
-            break;
-        default:
-            template = html`<h1>404 Not Found</h1>`;
-            break;
+    // Get the route name from the current route
+    let fileName = routingState.routes.find(route => route.url === routingState.currentRoute)?.name;
+    if (!fileName) {
+        // fileName = '404'; // TODO: Add a 404 route vs. the hard-coded template below
+        routingState.currentTemplate = html`<h1>404 Not Found</h1>`;routingState.currentTemplate;
+        return;
     }
-    routingState.currentTemplate = template;
+
+    // Load the route template
+    routingState.currentTemplate = await loadRouteTemplate(fileName);
 }
 
 // Run initial route update and watch for changes
@@ -58,18 +54,27 @@ routingState.$on('currentRoute', updateRouteTemplate);
 // ============================================================================================
 // Handles route changes when clicking on links
 window.addEventListener('click', (e) => {
-    if (e.target.tagName === 'A' && e.target.href.startsWith(window.location.origin)) {
-        e.preventDefault();
-        const href = e.target.getAttribute('href');
+    e.preventDefault();
+
+    let targetElement = e.target;
+
+    // Traverse up the DOM tree to find the closest anchor tag
+    while (targetElement && targetElement.tagName !== 'A') {
+        targetElement = targetElement.parentElement;
+    }
+
+    if (targetElement && targetElement.href.startsWith(window.location.origin)) {
+        const href = targetElement.getAttribute('href');
         console.log('Route change requested:', href);
         window.history.pushState({}, '', href);
         routingState.currentRoute = href;
+    } else {
+        console.log('No route change requested');
     }
 });
 
 // Handles route changes when using the back/forward buttons
 window.addEventListener('popstate', () => {
-    console.log('Route change requested:', window.location.pathname);
     routingState.currentRoute = window.location.pathname;
 });
 
