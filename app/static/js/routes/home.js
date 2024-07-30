@@ -161,7 +161,7 @@ const template = html`
     </div>
     <div class="container mt-4">
         ${() => homeState.aiResponse ? html`
-            <div class="card p-3 mb-3 border-primary">
+            <div class="card p-3 my-4 border-primary">
                 <h5 class="card-title text-muted">Summary</h5>
                 <div class="card-text">${toHtml(homeState.aiResponse.output)}</div>
             </div>
@@ -170,8 +170,8 @@ const template = html`
             ${() => homeState.searchResults.map(result => html`
                 <div class="col-md-12">
                     <div class="card p-3 mb-3 position-relative bible-search-response-container">
-                        <div class="position-absolute top-0 end-0 bg-light text-dark rounded-pill px-3 py-1 mt-1 me-1">
-                            ${(100*result.relative_similarity).toFixed(0)}%
+                        <div class="position-absolute top-0 end-0 text-dark rounded-pill px-3 py-1 mt-1 me-1 ${result.rank.color}">
+                            ${result.rank.label}
                         </div>
                         <h5 class="card-title">${result.book_name} ${result.chapter}:${result.verse}</h5>
                         <p class="card-text">${result.text}</p>
