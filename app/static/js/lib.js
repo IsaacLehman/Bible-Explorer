@@ -34,7 +34,23 @@ async function searchBible(version, query, limit = 10, context = { add: true, si
         return [];
     }
 
-    return response.json(); // {notes: [], verses: []}
+    const bibleResults = response.json(); // {notes: [], verses: []}
+
+    // Add ranking to the results
+    bibleResults.verses = bibleResults.verses.map((verse, index) => {
+        if (verse.similarity > 0.75) {
+            verse.rank = 'high';
+        } else if (verse.similarity > 0.71) {
+            verse.rank = 'medium-high';
+        } else if (verse.similarity > 0.65) {
+            verse.rank = 'medium';
+        } else {
+            verse.rank = 'low';
+        }
+        return verse;
+    });
+
+    return bibleResults;
 }
 
 // ============================================================================================

@@ -78,6 +78,26 @@ def get_text_embeddings(
 ======================================================= SEARCH HELPERS =======================================================
 """
 @njit(parallel=True)
+def l2_distance_numba(search_vector, verse_vectors) -> np.ndarray:
+    """
+    Calculate the L2 distance between a search vector and a list of verse vectors
+    - search_vector: The search vector to compare to
+    - verse_vectors: The list of verse vectors to compare to
+
+    Returns a list of L2 distances
+    """
+    similarities = np.zeros(len(verse_vectors))
+    for i in range(len(verse_vectors)):
+        # L2 Distance = sqrt(sum((a - b)^2)
+        cur_vector = verse_vectors[i]
+        distance = 0
+        for j in range(len(search_vector)):
+            distance += (search_vector[j] - cur_vector[j]) ** 2
+        similarities[i] = np.sqrt(distance)
+    return similarities
+
+
+@njit(parallel=True)
 def cosine_distance_numba(search_vector, verse_vectors) -> np.ndarray:
     """
     Calculate the cosine distance between a search vector and a list of verse vectors
@@ -88,12 +108,18 @@ def cosine_distance_numba(search_vector, verse_vectors) -> np.ndarray:
     """
     similarities = np.zeros(len(verse_vectors))
     for i in range(len(verse_vectors)):
-        # Cosine Distance = sqrt(sum((a - b)^2)
+        # Cosine Distance = 1 - cos(theta) = 1 - (a . b) / (||a|| ||b||)
         cur_vector = verse_vectors[i]
-        distance = 0
+        dot_product = 0
+        norm_a = 0
+        norm_b = 0
         for j in range(len(search_vector)):
-            distance += (search_vector[j] - cur_vector[j]) ** 2
-        similarities[i] = np.sqrt(distance)
+            dot_product += search_vector[j] * cur_vector[j]
+            norm_a += search_vector[j] ** 2
+            norm_b += cur_vector[j] ** 2
+        norm_a = np.sqrt(norm_a)
+        norm_b = np.sqrt(norm_b)
+        similarities[i] = 1 - dot_product / (norm_a * norm_b)
     return similarities
 
 

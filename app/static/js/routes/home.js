@@ -118,7 +118,7 @@ async function runBibleSearch() {
 // ============================================================================================
 const template = html`
     <div class="py-4"></div>
-    <div class="hero p-5 text-center rounded-3 bg_light">
+    <div class="hero p-5 text-center rounded-3 bg_light shadow-sm">
         <img class="bi mt-4 mb-3 rounded" src="./img/icons/bible-explorer-256.png" alt="Bible Explorer Icon" width="72" height="72">
         <h1 class="text-body-emphasis">Bible Explorer</h1>
         <p class="mx-auto fs-5 text-muted">Search the Bible with ease!</p>
@@ -137,7 +137,7 @@ const template = html`
         </div>
         <div class="d-flex justify-content-center mobile-flex-column">
             ${() => homeState.versions.map(version => html`
-                <div class="rounded shadow-sm bg_light me-3 option-btn mt-2 mobile-flex-item" @click="${() => {
+                <div class="rounded shadow-sm border_light me-3 option-btn mt-2 mobile-flex-item" @click="${() => {
                     homeState.versions.forEach(v => v.checked = false);
                     version.checked = true;
                 }}">
@@ -146,7 +146,7 @@ const template = html`
                 </div>
             `)}
             ${() => homeState.options.map(option => html`
-                <div class="rounded shadow-sm bg_light me-3 option-btn mt-2 mobile-flex-item" @click="${() => option.checked = !option.checked}">
+                <div class="rounded shadow-sm border_light me-3 option-btn mt-2 mobile-flex-item" @click="${() => option.checked = !option.checked}">
                     <i class="${() => option.checked ? option.iconOn : option.iconOff}"></i>
                     <span class="ms-2">${option.label}</span>
                 </div>
@@ -155,7 +155,7 @@ const template = html`
         <div class="d-flex justify-content-center mt-3">
             <button type="button" class="btn btn-primary w-75" @click="${() => runBibleSearch()}" disabled="${() => homeState.loading}">
                 <i class="bi bi-search me-3"></i> Explore the Bible
-                ${() => homeState.loading ? html`<div class="spinner-border spinner-border-sm text-light" role="status"></div>` : ''}
+                ${() => homeState.loading ? html`... <div class="spinner-border spinner-border-sm text-light ms-1" role="status"></div>` : ''}
             </button>
         </div>
     </div>
