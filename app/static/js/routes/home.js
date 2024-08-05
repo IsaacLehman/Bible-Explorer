@@ -51,7 +51,20 @@ const homeState = reactive({
     searchResults: [],
     searchStats: [],
     aiResponse: null,
+
+    // Formatters
+    getSearchResultsContext: () => {
+        return homeState.searchResults.filter(v => v.rank.name !== 'very-low').map(result => {
+            return {
+                reference: `${result.book_name} ${result.chapter}:${result.verse}`,
+                text: result.text,
+                context: result.context,
+                match: result.rank.label,
+            };
+        });
+    },
 });
+window.homeState = homeState; // For debugging
 
 
 // ============================================================================================
@@ -103,9 +116,10 @@ async function runBibleSearch() {
     // Get an AI summary of the responses
     homeState.aiResponse = await runAIChat(
             `You are a Bible explorer assistant. The user will ask a question and we will provide a variety of Bible verses that may answer the question.\n` +
-            `Your task is to summarize the verses and provide a concise response to the user's question.` +
-            `Do your best to provide a helpful and accurate response to the users query. Try to keep the response pointed and short, do not add any commentary or personal opinion. If you are unsure of the answer, you can say that you are unsure.`,
-            [{role: 'user', content: `User query: "${homeState.query}"\n\nBible version selected: ${version}\nVerses found (may or may not be relevent): ${JSON.stringify(homeState.searchResults)}`}],
+            `Your task is to summarize the verses and provide a concise response to the user's question.\n` +
+            `Do your best to provide a helpful and accurate response to the users query based on the provided Bible verses. Try to keep the response pointed and short - do not add any commentary or personal opinion. If you are unsure of the answer, you can say that you are unsure.\n` +
+            `Return your response in markdown format.`,
+            [{role: 'user', content: `User query: "${homeState.query}"\n\nBible version selected: ${version}\nVerses found (may or may not be relevent): ${JSON.stringify(homeState.getSearchResultsContext())}`}],
             'gpt-4o-mini'
     );
     // Hide the alert
@@ -167,7 +181,7 @@ const template = html`
             </div>
         ` : ''}
         <div class="row">
-            ${() => homeState.searchResults.map(result => html`
+            ${() => homeState.searchResults.filter(v => v.rank.name !== 'very-low').map(result => html`
                 <div class="col-md-12">
                     <div class="card p-3 mb-3 position-relative bible-search-response-container">
                         <div class="position-absolute top-0 end-0 text-dark rounded-pill px-3 py-1 mt-1 me-1 ${result.rank.color}">

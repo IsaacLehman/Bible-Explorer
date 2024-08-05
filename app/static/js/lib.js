@@ -17,6 +17,26 @@ function toHtml(markdown) {
     return showDownConverter.makeHtml(markdown);
 }
 
+function parseJson(jsonString, isObject=true) {
+    try {
+        if(isObject) {
+            // Try and strip everything before the first '{' character and after the last '}'
+            const start = jsonString.indexOf('{');
+            const end = jsonString.lastIndexOf('}');
+            jsonString = jsonString.substring(start, end + 1);
+        } else {
+            // Try and strip everything before the first '[' character and after the last ']'
+            const start = jsonString.indexOf('[');
+            const end = jsonString.lastIndexOf(']');
+            jsonString = jsonString.substring(start, end + 1);
+        }
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.debug('Failed to parse JSON:', error);
+        return null;
+    }
+}
+
 // ============================================================================================
 // Shared Bible Functions
 // ============================================================================================
@@ -56,11 +76,17 @@ async function searchBible(version, query, limit = 10, context = { add: true, si
                 label: 'Medium',
                 color: 'bg-info',
             };
-        } else {
+        } else if (verse.similarity > 0.55) {
             verse.rank = {
                 name: 'low',
                 label: 'Low',
                 color: 'bg-light',
+            };
+        } else {
+            verse.rank = {
+                name: 'very-low',
+                label: 'Very Low',
+                color: 'bg-secondary',
             };
         }
         return verse;
@@ -134,7 +160,7 @@ export {
     reactive, watch, html,
 
     // Helper functions
-    toHtml,
+    toHtml, parseJson,
     searchBible,
     runAIChat,
 
