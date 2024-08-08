@@ -133,6 +133,12 @@ const routingState = reactive({
             label: 'Chat',
             icon: 'bi bi-chat-left-text',
         },
+        {
+            url: '/news',
+            name: 'news',
+            label: 'News',
+            icon: 'bi bi-newspaper',
+        }
     ]
 });
 
