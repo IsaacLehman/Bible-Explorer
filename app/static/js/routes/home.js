@@ -43,7 +43,7 @@ const homeState = reactive({
     ],
 
     // Input Query
-    maxQueryLength: 100,
+    maxQueryLength: 255,
     query: '',
 
     // Search Results
@@ -118,9 +118,9 @@ async function runBibleSearch() {
             `You are a Bible explorer assistant. The user will ask a question and we will provide a variety of Bible verses that may answer the question.\n` +
             `Your task is to summarize the verses and provide a concise response to the user's question.\n` +
             `Do your best to provide a helpful and accurate response to the users query based on the provided Bible verses. Try to keep the response pointed and short - do not add any commentary or personal opinion. If you are unsure of the answer, you can say that you are unsure.\n` +
-            `Return your response in markdown format.`,
+            `Return your response in markdown format. Utulize bullet points and bold text to highlight key points.`,
             [{role: 'user', content: `User query: "${homeState.query}"\n\nBible version selected: ${version}\nVerses found (may or may not be relevent): ${JSON.stringify(homeState.getSearchResultsContext())}`}],
-            'gpt-4o-mini'
+            'llama3-8b-8192'
     );
     // Hide the alert
     homeState.loading = false;

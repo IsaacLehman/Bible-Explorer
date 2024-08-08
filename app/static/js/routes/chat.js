@@ -82,7 +82,7 @@ function runChat() {
 
     // Send user input to AI
     chatState.chatLoading = true;
-    runAIChat(chatState.systemPrompt, chatState.chatHistory, 'gpt-4o-mini').then(data => {
+    runAIChat(chatState.systemPrompt, chatState.chatHistory, 'llama-3.1-70b-versatile').then(data => {
         // Update chat history with AI response
         chatState.chatHistory.push({ content: data.output, role: 'assistant' });
     }).finally(() => {

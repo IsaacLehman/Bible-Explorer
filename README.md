@@ -14,6 +14,7 @@ pip install fastapi numpy pandas openai sqlmodel vertexai numba
 ```json
 {
     "OPENAI_API_KEY": "your_openai_api_key",
+    "GROQ_API_KEY": "your_groq_api_key",
     "VERTEX_AI_SERVICE_ACCOUNT": "your_vertex_ai_service_account", // Ensure this service account has access to the Vertex AI embeddings
 }
 ```

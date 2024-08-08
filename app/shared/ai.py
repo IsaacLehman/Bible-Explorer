@@ -75,7 +75,11 @@ class AI_Response(BaseModel):
 ======================================================= FUNCTIONS =======================================================
 """
 # Global OpenAI client
-client = OpenAI(api_key=get_secret('OPENAI_API_KEY'))
+openAI_client = OpenAI(api_key=get_secret('OPENAI_API_KEY'))
+groq_client = OpenAI(
+    api_key=get_secret('GROQ_API_KEY'),
+    base_url="https://api.groq.com/openai/v1"
+)
 def ai_chat(source: str, messages: List[Message], model: str = "gpt-4o-mini", config: Dict[str, Any] = {
     "stream": False,
     "temperature": 0.65,
@@ -93,6 +97,7 @@ def ai_chat(source: str, messages: List[Message], model: str = "gpt-4o-mini", co
             return {"error": "Streaming not implemented yet."}
         
         start = time.time()
+        client = openAI_client if model.startswith("gpt") else groq_client
         response = client.chat.completions.create(
             model=model,
             messages=[message.dict() for message in messages],
@@ -125,4 +130,5 @@ def ai_chat(source: str, messages: List[Message], model: str = "gpt-4o-mini", co
             completion_tokens=response.usage.completion_tokens
         )
     except Exception as e:
+        print(e)
         return {"error": str(e)}
