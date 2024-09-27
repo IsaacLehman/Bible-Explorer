@@ -4,6 +4,7 @@
 import {
     reactive, html,
     toHtml, searchBible, runAIChat,
+    getRandomAiModel,
     alertingState,
 } from '../lib.js';
 
@@ -114,13 +115,21 @@ async function runBibleSearch() {
     // Set AI Summary to loading state
     homeState.aiResponse = { output: 'Loading summary...' };
     // Get an AI summary of the responses
-    homeState.aiResponse = await runAIChat(
-            `You are a Bible explorer assistant. The user will ask a question and we will provide a variety of Bible verses that may answer the question.\n` +
-            `Your task is to summarize the verses and provide a concise response to the user's question.\n` +
-            `Do your best to provide a helpful and accurate response to the users query based on the provided Bible verses. Try to keep the response pointed and short - do not add any commentary or personal opinion. If you are unsure of the answer, you can say that you are unsure.\n` +
-            `Return your response in markdown format. Utulize bullet points and bold text to highlight key points.`,
-            [{role: 'user', content: `User query: "${homeState.query}"\n\nBible version selected: ${version}\nVerses found (may or may not be relevent): ${JSON.stringify(homeState.getSearchResultsContext())}`}],
-            'llama3-8b-8192'
+    homeState.aiResponse = await runAIChat(`\
+            You are a Bible explorer assistant. The user will ask a question and we will provide you a variety of Bible verses that may answer the question.
+
+            **Task:**
+            Your task is to summarize the verses and provide a concise response to the user's question.
+
+            **Instructions:**
+            Do your best to provide a helpful and accurate response to the users query based on the provided Bible verses. Try to keep the response pointed and short - do not add any commentary or personal opinion. 
+            - Accuracy: If you are unsure of the answer or the provided context doesn't contain enough information to accurately respond, say that you are unsure of the answer.
+            - Format: Tailor the response to the user's query and the provided verses. If the user asks a question, answer it. If the user makes a statement, provide a response that is relevant to the statement.
+
+            **Response:**
+            Return your response in markdown format. Utulize markdown lists and bold text to highlight key points. Refrain from any H1-H3's since the response will be displayed in a card format.`,
+        [{ role: 'user', content: `**Verses found (may or may not be relevent):** ${JSON.stringify(homeState.getSearchResultsContext())}\n\n**User query:** "${homeState.query}"`}],
+        getRandomAiModel()
     );
     // Hide the alert
     homeState.loading = false;
